@@ -1,4 +1,5 @@
 #!/bin/bash
 
 mvn clean package
-java -jar target/homebrew-bot-0.0.1.jar
+export $(cat .env)
+java -jar target/homebrew-bot-0.0.1-jar-with-dependencies.jar $DISCORD_BOT_TOKEN
