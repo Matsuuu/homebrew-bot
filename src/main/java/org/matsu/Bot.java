@@ -1,11 +1,12 @@
 package org.matsu;
 
+import org.matsu.listeners.QueryListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -23,14 +24,22 @@ public class Bot {
 
         logger.info("Beginning initialization");
 
+        JDA bot = initialize(token);
+
+        bot.upsertCommand("hops", "Get information on given hop")
+            .addOption(OptionType.STRING, "hop_name", "Name of the hop")
+            .queue();
+        
+        logger.info("Bot initialized!");
+    }
+
+    static JDA initialize(String token) {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
             .setBulkDeleteSplittingEnabled(true)
             .setCompression(Compression.NONE)
-            .setActivity(Activity.watching("TV"));
-
-        JDA jda = builder.build();
-        
-        logger.info("Bot initialized!");
+            .addEventListeners(new QueryListener())
+            ;
+        return builder.build();
     }
 }
