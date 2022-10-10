@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -26,8 +27,9 @@ public class Bot {
 
         JDA bot = initialize(token);
 
+        OptionData slashOption = new OptionData(OptionType.STRING, "hop_name", "Hop name", true, true);
         bot.upsertCommand("hops", "Get information on given hop")
-            .addOption(OptionType.STRING, "hop_name", "Name of the hop")
+            .addOptions(slashOption)
             .queue();
         
         logger.info("Bot initialized!");
