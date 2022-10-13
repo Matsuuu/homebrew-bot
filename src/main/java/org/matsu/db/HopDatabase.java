@@ -1,4 +1,4 @@
-package org.matsu.crawler;
+package org.matsu.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;

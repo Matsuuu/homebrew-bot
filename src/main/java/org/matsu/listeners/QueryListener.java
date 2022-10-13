@@ -2,7 +2,7 @@ package org.matsu.listeners;
 
 import java.util.List;
 
-import org.matsu.crawler.HopDatabase;
+import org.matsu.db.HopDatabase;
 import org.matsu.http.Requester;
 import org.matsu.pojo.Hop;
 import org.slf4j.Logger;

@@ -1,6 +1,12 @@
 package org.matsu;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.matsu.listeners.QueryListener;
+import org.matsu.scrape.SeleniumConfig;
+import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,11 +21,20 @@ public class Bot {
 
     static Logger logger = LoggerFactory.getLogger(Bot.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length <= 0) {
             logger.error("Please provide the auth token");
             return;
         }
+
+        SeleniumConfig selenium = new SeleniumConfig();
+        selenium.getPage("https://beermaverick.com/hop/citra/");
+        selenium.hideElement("[id^=AdThrive_Footer]");
+        selenium.hideElement("#gdpr-consent-tool-wrapper");
+        byte[] screenshot = selenium.screenshotElement(By.id("aromaChart"));
+        Path currentPath = Path.of("hop-images/hopname.png");
+        
+        Files.write(currentPath, screenshot);
 
         String token = args[0];
 
