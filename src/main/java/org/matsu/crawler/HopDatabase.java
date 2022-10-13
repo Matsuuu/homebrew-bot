@@ -34,8 +34,12 @@ public class HopDatabase {
         hopsToChoices();
     }
 
+    public Hop findHop(String hopName) {
+        return hops.getOrDefault(hopName.toLowerCase(), Hop.NOT_FOUND);
+    }
+
     public String getHopUrl(String hopName) {
-        String hopUrlSuffix =  hops.getOrDefault(hopName.toLowerCase(), Hop.NOT_FOUND()).url();
+        String hopUrlSuffix =  findHop(hopName).url();
         return HOP_SITE_BASE + hopUrlSuffix;
     }
 

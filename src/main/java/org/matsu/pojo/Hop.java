@@ -8,7 +8,5 @@ public record Hop(@JsonProperty("value") String name, @JsonProperty("data") Stri
         return "/hop/" + dataName;
     }
 
-    public static Hop NOT_FOUND() {
-        return new Hop("", "");
-    }
+    public static Hop NOT_FOUND = new Hop("", "");
 }
