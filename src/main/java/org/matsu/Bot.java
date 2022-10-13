@@ -27,15 +27,6 @@ public class Bot {
             return;
         }
 
-        SeleniumConfig selenium = new SeleniumConfig();
-        selenium.getPage("https://beermaverick.com/hop/citra/");
-        selenium.hideElement("[id^=AdThrive_Footer]");
-        selenium.hideElement("#gdpr-consent-tool-wrapper");
-        byte[] screenshot = selenium.screenshotElement(By.id("aromaChart"));
-        Path currentPath = Path.of("hop-images/hopname.png");
-        
-        Files.write(currentPath, screenshot);
-
         String token = args[0];
 
         logger.info("Beginning initialization");

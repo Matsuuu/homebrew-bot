@@ -1,5 +1,8 @@
 package org.matsu.db;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.matsu.http.Requester;
 import org.matsu.pojo.Hop;
+import org.matsu.scrape.SeleniumConfig;
+import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +43,8 @@ public class HopDatabase {
         return hops.getOrDefault(hopName.toLowerCase(), Hop.NOT_FOUND);
     }
 
-    public String getHopUrl(String hopName) {
-        String hopUrlSuffix =  findHop(hopName).url();
+    public String getHopUrl(Hop hop) {
+        String hopUrlSuffix =  hop.url();
         return HOP_SITE_BASE + hopUrlSuffix;
     }
 
@@ -80,5 +85,20 @@ public class HopDatabase {
             logger.error("Failed to get hop data from hopmaverick");
             e.printStackTrace();
         }
+    }
+
+    public File getHopDataChart(Hop hop) throws IOException {
+        SeleniumConfig selenium = SeleniumConfig.getInstance();
+        selenium.getPage(getHopUrl(hop));
+
+        selenium.hideElement("[id^=AdThrive_Footer]");
+        selenium.hideElement("#gdpr-consent-tool-wrapper");
+
+        File screenshot = selenium.screenshotElement(By.id("aromaChart"));
+        /*Path currentPath = Path.of("hop-images/" + hop.dataName() + ".png");
+        Files.write(currentPath, screenshot);*/
+
+        return screenshot;
+
     }
 }

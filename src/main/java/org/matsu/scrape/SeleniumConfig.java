@@ -1,5 +1,6 @@
 package org.matsu.scrape;
 
+import java.io.File;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
@@ -20,9 +21,18 @@ public class SeleniumConfig {
 
     static Logger logger = LoggerFactory.getLogger(SeleniumConfig.class);
 
+    private static SeleniumConfig instance;
+
     public WebDriver driver;
 
-    public SeleniumConfig() {
+    public static SeleniumConfig getInstance() {
+        if (instance == null) {
+            instance = new SeleniumConfig();
+        }
+        return instance;
+    }
+
+    SeleniumConfig() {
         // TODO: Use allowlist maybe
         System.setProperty("webdriver.chrome.whitelistedIps", "");
         WebDriverManager.chromedriver().setup();
@@ -52,9 +62,8 @@ public class SeleniumConfig {
             .until(driver -> driver.findElement(by));
     }
 
-    public byte[] screenshotElement(By by) {
-        //return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+    public File screenshotElement(By by) {
         return ((TakesScreenshot) waitForElement(by, 5000))
-            .getScreenshotAs(OutputType.BYTES);
+            .getScreenshotAs(OutputType.FILE);
     }
 }
