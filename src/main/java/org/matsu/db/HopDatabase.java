@@ -96,13 +96,11 @@ public class HopDatabase {
         selenium.scrollToBottom();
         selenium.clickPage();
 
-        logger.info("zzz");
         try {
             Thread.sleep(2000);
         } catch(Exception ex) {
 
         }
-        logger.info("nozzz");
 
         selenium.hideElement("header");
         selenium.hideElement("#gridlove-header-responsive");
