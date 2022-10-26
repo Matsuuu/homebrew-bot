@@ -11,6 +11,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class SeleniumConfig {
     SeleniumConfig() {
         // TODO: Use allowlist maybe
         System.setProperty("webdriver.chrome.whitelistedIps", "");
-        WebDriverManager.chromedriver().setup();
+        WebDriverManager.chromedriver().browserVersion("106").setup();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -45,21 +46,38 @@ public class SeleniumConfig {
     }
 
     public void getPage(String url) {
-        driver.get("https://beermaverick.com/hop/citra/");
+        driver.get(url);
     }
 
     public void hideElement(String elementId) {
         try {
-            WebElement elementToHide = waitForElement(By.cssSelector(elementId), 3000);
+            WebElement elementToHide = waitForElement(By.cssSelector(elementId), 4000);
+            logger.info("Found element " + elementId + " and hid it");
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.visibility = 'hidden'", elementToHide);
         } catch (Exception ex) {
             logger.info("Element " + elementId + " was not found on the page and was not hidden.");
         }
     }
+    
+    public void padElement(String elementId) {
+        WebElement elementToHide = waitForElement(By.cssSelector(elementId), 4000);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].style.padding = '10px'", elementToHide);
+    }
 
     public WebElement waitForElement(By by, long timeout) {
         return new WebDriverWait(driver, Duration.ofMillis(timeout))
             .until(driver -> driver.findElement(by));
+    }
+
+    public void clickPage() {
+        WebElement body = driver.findElement(By.tagName("body"));
+        new Actions(driver)
+            .click(body)
+            .perform();
+    }
+
+    public void scrollToBottom() {
+        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, 99999)", "");
     }
 
     public File screenshotElement(By by) {

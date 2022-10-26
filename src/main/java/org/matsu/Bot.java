@@ -31,6 +31,8 @@ public class Bot {
 
         logger.info("Beginning initialization");
 
+        testSelenium();
+
         JDA bot = initialize(token);
 
         OptionData slashOption = new OptionData(OptionType.STRING, "hop_name", "Hop name", true, true);
@@ -39,6 +41,13 @@ public class Bot {
             .queue();
         
         logger.info("Bot initialized!");
+    }
+
+    static void testSelenium() {
+        logger.info("Testing Selenium instance");
+        SeleniumConfig selenium = SeleniumConfig.getInstance();
+        selenium.getPage("https://matsu.fi");
+        logger.info("Selenium instance functional");
     }
 
     static JDA initialize(String token) {

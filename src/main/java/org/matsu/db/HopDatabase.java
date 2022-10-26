@@ -3,6 +3,7 @@ package org.matsu.db;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -91,8 +92,24 @@ public class HopDatabase {
         SeleniumConfig selenium = SeleniumConfig.getInstance();
         selenium.getPage(getHopUrl(hop));
 
+        // TODO: Use embed info as base?
+        selenium.scrollToBottom();
+        selenium.clickPage();
+
+        logger.info("zzz");
+        try {
+            Thread.sleep(2000);
+        } catch(Exception ex) {
+
+        }
+        logger.info("nozzz");
+
+        selenium.hideElement("header");
+        selenium.hideElement("#gridlove-header-responsive");
         selenium.hideElement("[id^=AdThrive_Footer]");
         selenium.hideElement("#gdpr-consent-tool-wrapper");
+
+        selenium.padElement("#aromaChart");
 
         File screenshot = selenium.screenshotElement(By.id("aromaChart"));
         /*Path currentPath = Path.of("hop-images/" + hop.dataName() + ".png");
