@@ -2,14 +2,15 @@ package org.matsu.db;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,6 +35,7 @@ public class HopDatabase {
 
     public final String HOP_SITE_BASE = "https://beermaverick.com";
     final String HOP_SITE_URL = HOP_SITE_BASE + "/hops/";
+    final String HOP_DATA_API_URL = HOP_SITE_BASE + "/api/js/?hop=";
 
     public HopDatabase() {
         scrapeHopMaverickHopList();
@@ -88,7 +90,7 @@ public class HopDatabase {
         }
     }
 
-    public File getHopDataChart(Hop hop) throws IOException {
+    public File getHopDataChart(Hop hop) {
         SeleniumConfig selenium = SeleniumConfig.getInstance();
         selenium.getPage(getHopUrl(hop));
 
@@ -112,6 +114,16 @@ public class HopDatabase {
         File screenshot = selenium.screenshotElement(By.id("aromaChart"));
         /*Path currentPath = Path.of("hop-images/" + hop.dataName() + ".png");
         Files.write(currentPath, screenshot);*/
+
+        // TODO: Move these to other functions and make scraping and data gathering 
+        // a whole function that fetches everything and caches it.
+        String sourceCode = selenium.driver.getPageSource();
+        Pattern pattern = Pattern.compile("data-hop=\"(\\d+)\"");
+        Matcher matcher = pattern.matcher(sourceCode);
+        if (matcher.find()) {
+            String hopId = matcher.group(1);
+
+        }
 
         return screenshot;
 

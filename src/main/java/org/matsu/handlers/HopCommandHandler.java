@@ -1,7 +1,6 @@
 package org.matsu.handlers;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.matsu.db.HopDatabase;
@@ -31,6 +30,7 @@ public class HopCommandHandler {
         if (!(ev instanceof SlashCommandInteractionEvent event)) {
             return;
         }
+
         String hopName = event.getOption("hop_name").getAsString();
         Hop hop = hopDatabase.findHop(hopName);
         if (hop.equals(Hop.NOT_FOUND)) {
@@ -38,7 +38,6 @@ public class HopCommandHandler {
                 .setEphemeral(true)
                 .queue();
             return;
-            // Handle not found
         }
 
         event.reply("Processing your request. Hold on a second.")
@@ -48,12 +47,7 @@ public class HopCommandHandler {
 
 
         String hopUrl = hopDatabase.getHopUrl(hop);
-        File hopDataImage = null;
-        try {
-            hopDataImage = hopDatabase.getHopDataChart(hop);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        File hopDataImage = hopDatabase.getHopDataChart(hop);
 
         MessageEmbed embed = new EmbedBuilder()
             .setColor(0x7CFC00)
