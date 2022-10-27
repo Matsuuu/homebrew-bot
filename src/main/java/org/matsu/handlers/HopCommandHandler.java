@@ -2,7 +2,6 @@ package org.matsu.handlers;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 
 import org.matsu.db.HopDatabase;
@@ -17,15 +16,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public class HopCommandHandler {
     static HopDatabase hopDatabase = new HopDatabase();
@@ -37,18 +31,21 @@ public class HopCommandHandler {
         if (!(ev instanceof SlashCommandInteractionEvent event)) {
             return;
         }
+        String hopName = event.getOption("hop_name").getAsString();
+        Hop hop = hopDatabase.findHop(hopName);
+        if (hop.equals(Hop.NOT_FOUND)) {
+            event.reply("Hop not found. Please use the autocompletion feature to find hops.")
+                .setEphemeral(true)
+                .queue();
+            return;
+            // Handle not found
+        }
+
         event.reply("Processing your request. Hold on a second.")
             .setEphemeral(true)
             .queue();
         // event.deferReply();
 
-        String hopName = event.getOption("hop_name").getAsString();
-        Hop hop = hopDatabase.findHop(hopName);
-        if (hop.equals(Hop.NOT_FOUND)) {
-            event.reply("Hop not found. Please use the autocompletion feature to find hops.");
-            return;
-            // Handle not found
-        }
 
         String hopUrl = hopDatabase.getHopUrl(hop);
         File hopDataImage = null;
