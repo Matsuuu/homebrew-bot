@@ -2,7 +2,7 @@ package org.matsu.pojo;
 
 import java.io.File;
 
-public record ScrapedHopData(
+public record HopData(
     String country,
     String purpose,
     String alphaAcids,

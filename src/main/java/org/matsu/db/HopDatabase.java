@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.matsu.http.Requester;
 import org.matsu.pojo.Hop;
+import org.matsu.pojo.HopData;
 import org.matsu.scrape.SeleniumConfig;
 import org.openqa.selenium.By;
 import org.slf4j.Logger;
@@ -127,5 +128,15 @@ public class HopDatabase {
 
         return screenshot;
 
+    }
+
+    public Hop getHopWithHopData(Hop hop) {
+        if (hop.hopData() != null) {
+            return hop;
+        }
+        // TODO: Fetch, Scrape Cache the hop data
+        Hop initializedHop = null; // TODO: Populate with scraped data
+        hops.put(hop.name(), initializedHop);
+        return initializedHop;
     }
 }
