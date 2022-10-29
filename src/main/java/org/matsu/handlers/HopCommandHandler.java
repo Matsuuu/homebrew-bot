@@ -43,11 +43,9 @@ public class HopCommandHandler {
         event.reply("Processing your request. Hold on a second.")
             .setEphemeral(true)
             .queue();
-        // event.deferReply();
 
-
+        hop = hopDatabase.getHopWithHopData(hop);
         String hopUrl = hopDatabase.getHopUrl(hop);
-        File hopDataImage = hopDatabase.getHopDataChart(hop);
 
         MessageEmbed embed = new EmbedBuilder()
             .setColor(0x7CFC00)
@@ -59,7 +57,7 @@ public class HopCommandHandler {
             .build();
 
         MessageCreateData message = new MessageCreateBuilder()
-            .setFiles(FileUpload.fromData(hopDataImage, hop.imageName()))
+            .setFiles(FileUpload.fromData(hop.hopData().hopChartImage(), hop.imageName()))
             .setEmbeds(embed)
             .build();
 

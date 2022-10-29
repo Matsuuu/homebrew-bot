@@ -2,6 +2,7 @@ package org.matsu.scrape;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -46,6 +47,7 @@ public class SeleniumConfig {
     }
 
     public void getPage(String url) {
+        logger.info("Fetching page " + url);
         driver.get(url);
     }
 
@@ -67,6 +69,10 @@ public class SeleniumConfig {
     public WebElement waitForElement(By by, long timeout) {
         return new WebDriverWait(driver, Duration.ofMillis(timeout))
             .until(driver -> driver.findElement(by));
+    }
+
+    public List<WebElement> getElements(By by) {
+        return driver.findElements(by);
     }
 
     public void clickPage() {

@@ -10,5 +10,6 @@ public record HopData(
     String profile,
     File hopChartImage
 ){
+    public static final HopData NOT_INITIALIZED = new HopData(null, null, null, null, null, null);
 
 }

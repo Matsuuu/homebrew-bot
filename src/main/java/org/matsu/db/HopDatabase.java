@@ -1,10 +1,8 @@
 package org.matsu.db;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +19,7 @@ import org.matsu.pojo.Hop;
 import org.matsu.pojo.HopData;
 import org.matsu.scrape.SeleniumConfig;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,10 @@ public class HopDatabase {
     public String getHopUrl(Hop hop) {
         String hopUrlSuffix =  hop.url();
         return HOP_SITE_BASE + hopUrlSuffix;
+    }
+
+    public String getHopApiDataUrl(String hopDataId) {
+        return HOP_DATA_API_URL + hopDataId;
     }
 
     void hopsToChoices() {
@@ -91,51 +94,85 @@ public class HopDatabase {
         }
     }
 
-    public File getHopDataChart(Hop hop) {
+    HopData scrapeHopData(Hop hop) {
         SeleniumConfig selenium = SeleniumConfig.getInstance();
         selenium.getPage(getHopUrl(hop));
 
-        // TODO: Use embed info as base?
         selenium.scrollToBottom();
         selenium.clickPage();
+        
+        File hopChartImage = screenShotHopChart(hop, selenium);
 
+        String sourceCode = selenium.driver.getPageSource();
+        String hopDataId = getHopDataId(sourceCode);
+
+        Map<String, String> hopDataFields = fetchHopData(hopDataId, selenium);
+
+        HopData hopData = new HopData(
+                hopDataFields.get("Country"),
+                hopDataFields.get("Purpose"),
+                hopDataFields.get("Alpha Acids"),
+                hopDataFields.get("Beta Acids"),
+                hopDataFields.get("Profile"),
+                hopChartImage
+        );
+
+        return hopData;
+    }
+
+    String getHopDataId(String sourceCode) {
+        Pattern pattern = Pattern.compile("data-hop=\"(\\d+)\"");
+        Matcher matcher = pattern.matcher(sourceCode);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        // Shouldn't happen
+        // TODO: Handle this case somehow
+        return "";
+    }
+
+    File screenShotHopChart(Hop hop, SeleniumConfig selenium) {
         try {
             Thread.sleep(2000);
-        } catch(Exception ex) {
+        } catch(Exception ex) {}
 
-        }
-
+        // Hide all of that ad and gdpr stuff
         selenium.hideElement("header");
         selenium.hideElement("#gridlove-header-responsive");
         selenium.hideElement("[id^=AdThrive_Footer]");
         selenium.hideElement("#gdpr-consent-tool-wrapper");
 
+        // Pad the element a little bit to improve the screenshot
         selenium.padElement("#aromaChart");
 
         File screenshot = selenium.screenshotElement(By.id("aromaChart"));
-        /*Path currentPath = Path.of("hop-images/" + hop.dataName() + ".png");
-        Files.write(currentPath, screenshot);*/
-
-        // TODO: Move these to other functions and make scraping and data gathering 
-        // a whole function that fetches everything and caches it.
-        String sourceCode = selenium.driver.getPageSource();
-        Pattern pattern = Pattern.compile("data-hop=\"(\\d+)\"");
-        Matcher matcher = pattern.matcher(sourceCode);
-        if (matcher.find()) {
-            String hopId = matcher.group(1);
-
-        }
-
         return screenshot;
-
     }
+
+    Map<String, String> fetchHopData(String hopDataId, SeleniumConfig selenium) {
+        selenium.getPage(getHopApiDataUrl(hopDataId));
+        
+        selenium.waitForElement(By.cssSelector("[id^=embedframe]"), 2000);
+        List<WebElement> listElements = selenium.getElements(By.tagName("li"));
+
+        Map<String, String> hopDataFields = listElements.stream()
+            .map(WebElement::getText)
+            .map(text -> text.split(":"))
+            .collect(Collectors.toMap(textParts -> textParts[0], textParts -> textParts[1]));
+
+        return hopDataFields;
+    } 
 
     public Hop getHopWithHopData(Hop hop) {
         if (hop.hopData() != null) {
             return hop;
         }
-        // TODO: Fetch, Scrape Cache the hop data
-        Hop initializedHop = null; // TODO: Populate with scraped data
+
+        logger.info(hop.toString());
+        logger.info("Hop data not found. Initiating data fetching...");
+        HopData hopData = scrapeHopData(hop);
+
+        Hop initializedHop = new Hop(hop.name(), hop.dataName(), hopData);
         hops.put(hop.name(), initializedHop);
         return initializedHop;
     }
