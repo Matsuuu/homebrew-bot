@@ -47,23 +47,27 @@ public class HopCommandHandler {
         hop = hopDatabase.getHopWithHopData(hop);
         String hopUrl = hopDatabase.getHopUrl(hop);
 
-        MessageEmbed embed = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new EmbedBuilder()
             .setColor(0x7CFC00)
             .setTitle(hop.name(), hopUrl)
-            .setImage("attachment://" + hop.imageName())
-            .addField(new Field("Purpose", "Dual", true))
-            .addField(new Field("Country", "USA", true))
-            .addField(new Field("Similiar hops:", "Simcoe, Citra, etc.", false))
-            .build();
+            .addField(new Field("Purpose", hop.hopData().purpose(), true))
+            .addField(new Field("Country", hop.hopData().country(), true))
+            .addField(new Field("Alpha Acids", hop.hopData().alphaAcids(), true))
+            .addField(new Field("Beta Acids", hop.hopData().betaAcids(), true))
+            //.addField(new Field("Similiar hops:", "Simcoe, Citra, etc.", false))
+            .addField(new Field("Profile", hop.hopData().profile(), false));
 
-        MessageCreateData message = new MessageCreateBuilder()
-            .setFiles(FileUpload.fromData(hop.hopData().hopChartImage(), hop.imageName()))
-            .setEmbeds(embed)
-            .build();
 
-        event.getChannel().sendMessage(message).queue();
-        //event.reply(message).queue();
+        MessageCreateBuilder messageBuilder = new MessageCreateBuilder()
+            .setEmbeds(embedBuilder.build());
 
+
+        if (hop.hopData().hopChartImage() != null) {
+            embedBuilder = embedBuilder.setImage("attachment://" + hop.imageName());
+            messageBuilder = messageBuilder.setFiles(FileUpload.fromData(hop.hopData().hopChartImage(), hop.imageName()));
+        }
+
+        event.getChannel().sendMessage(messageBuilder.build()).queue();
     }
 
     public static void handleHopAutoComplete(Event ev) {

@@ -165,6 +165,7 @@ public class HopDatabase {
 
     public Hop getHopWithHopData(Hop hop) {
         if (hop.hopData() != null) {
+            logger.info("Hop data cache hit");
             return hop;
         }
 
@@ -173,7 +174,7 @@ public class HopDatabase {
         HopData hopData = scrapeHopData(hop);
 
         Hop initializedHop = new Hop(hop.name(), hop.dataName(), hopData);
-        hops.put(hop.name(), initializedHop);
+        hops.put(hop.dataName().toLowerCase(), initializedHop);
         return initializedHop;
     }
 }

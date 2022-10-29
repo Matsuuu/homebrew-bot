@@ -53,7 +53,7 @@ public class SeleniumConfig {
 
     public void hideElement(String elementId) {
         try {
-            WebElement elementToHide = waitForElement(By.cssSelector(elementId), 4000);
+            WebElement elementToHide = waitForElement(By.cssSelector(elementId), 2000);
             logger.info("Found element " + elementId + " and hid it");
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.visibility = 'hidden'", elementToHide);
         } catch (Exception ex) {
@@ -62,13 +62,21 @@ public class SeleniumConfig {
     }
     
     public void padElement(String elementId) {
-        WebElement elementToHide = waitForElement(By.cssSelector(elementId), 4000);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.padding = '10px'", elementToHide);
+        try {
+            WebElement elementToHide = waitForElement(By.cssSelector(elementId), 2000);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.padding = '10px'", elementToHide);
+        } catch (Exception ex) {
+            logger.info("Element " + elementId + " was not found on the page and was not padded.");
+        }
     }
 
     public WebElement waitForElement(By by, long timeout) {
-        return new WebDriverWait(driver, Duration.ofMillis(timeout))
-            .until(driver -> driver.findElement(by));
+        try {
+            return new WebDriverWait(driver, Duration.ofMillis(timeout))
+                .until(driver -> driver.findElement(by));
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public List<WebElement> getElements(By by) {
@@ -87,7 +95,12 @@ public class SeleniumConfig {
     }
 
     public File screenshotElement(By by) {
-        return ((TakesScreenshot) waitForElement(by, 5000))
-            .getScreenshotAs(OutputType.FILE);
+        try {
+            return ((TakesScreenshot) waitForElement(by, 2000))
+                .getScreenshotAs(OutputType.FILE);
+        } catch (NullPointerException ex) {
+            logger.info("Couldn't screenshop element as element was not found.");
+            return null;
+        }
     }
 }
