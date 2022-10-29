@@ -17,8 +17,10 @@ public record HopData(
     public static final HopData NOT_INITIALIZED = new HopData(null, null, null, null, null, null, Collections.emptyList());
 
     public String pairingsFormatted() {
+        if (pairings.isEmpty()) return "No pairings found";
+
         return pairings.stream()
-            .map(hop -> "[" + hop.name() + "](" + hop.fullUrl() + ")")
+            .map(hop -> String.format("[%s](%s)", hop.name(), hop.fullUrl()))
             .collect(Collectors.joining(", "));
     }
 
