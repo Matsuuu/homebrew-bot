@@ -95,7 +95,6 @@ public class HopDatabase {
     HopData scrapeHopData(Hop hop) {
         SeleniumConfig selenium = SeleniumConfig.getInstance();
         selenium.getPage(getHopUrl(hop));
-
         selenium.scrollToBottom();
         selenium.clickPage();
         
@@ -133,6 +132,7 @@ public class HopDatabase {
     }
 
     File screenShotHopChart(Hop hop, SeleniumConfig selenium) {
+        // Let's give the charts etc. a little time to draw out
         try {
             Thread.sleep(2000);
         } catch(Exception ex) {}
@@ -168,24 +168,23 @@ public class HopDatabase {
         logger.info("Getting hop pairings");
         Pattern pattern = Pattern.compile("(We found that)(.*?)(hops)");
         Matcher matcher = pattern.matcher(sourceCode);
-        if (matcher.find()) {
-            logger.info("Found pairings for hop");
-            String pairings = matcher.group(2);
-            Pattern namePattern = Pattern.compile(">(\\w+)<");
-            Matcher nameMatcher = namePattern.matcher(pairings);
-
-            List<Hop> foundPairings = new ArrayList<>();
-            while (nameMatcher.find()) {
-                String pairingName = nameMatcher.group(1).toLowerCase();
-                logger.info("Pairing: " + pairingName);
-                if (hops.containsKey(pairingName)) {
-                    foundPairings.add(hops.get(pairingName));
-                }
-            }
-            return foundPairings;
+        if (!matcher.find()) {
+            return Collections.emptyList();
         }
 
-        return Collections.emptyList();
+        logger.info("Found pairings for hop");
+        String pairings = matcher.group(2); // Magic number, maybe add an alias?
+        Pattern namePattern = Pattern.compile(">(\\w+)<"); // Match hop name inside <a href="foo">Citra</a>
+        Matcher nameMatcher = namePattern.matcher(pairings);
+
+        List<Hop> foundPairings = new ArrayList<>();
+        while (nameMatcher.find()) {
+            String pairingName = nameMatcher.group(1).toLowerCase();
+            if (hops.containsKey(pairingName)) {
+                foundPairings.add(hops.get(pairingName));
+            }
+        }
+        return foundPairings;
     }
 
 
