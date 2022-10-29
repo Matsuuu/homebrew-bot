@@ -3,10 +3,12 @@ package org.matsu.db;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,10 +35,6 @@ public class HopDatabase {
     Map<String, Hop> hops = new HashMap<>();
     List<Choice> hopChoices = new ArrayList<>();
 
-    public final String HOP_SITE_BASE = "https://beermaverick.com";
-    final String HOP_SITE_URL = HOP_SITE_BASE + "/hops/";
-    final String HOP_DATA_API_URL = HOP_SITE_BASE + "/api/js/?hop=";
-
     public HopDatabase() {
         scrapeHopMaverickHopList();
         hopsToChoices();
@@ -48,11 +46,11 @@ public class HopDatabase {
 
     public String getHopUrl(Hop hop) {
         String hopUrlSuffix =  hop.url();
-        return HOP_SITE_BASE + hopUrlSuffix;
+        return Hop.HOP_SITE_BASE + hopUrlSuffix;
     }
 
     public String getHopApiDataUrl(String hopDataId) {
-        return HOP_DATA_API_URL + hopDataId;
+        return Hop.HOP_DATA_API_URL + hopDataId;
     }
 
     void hopsToChoices() {
@@ -72,7 +70,7 @@ public class HopDatabase {
     }
 
     void scrapeHopMaverickHopList() {
-        String hopSiteData = http.get(HOP_SITE_URL);
+        String hopSiteData = http.get(Hop.HOP_SITE_URL);
         //logger.info(hopSiteData);
         String hopDataString = hopSiteData.substring(
                 hopSiteData.indexOf("var hops = [") + "var hops = ".length(),
@@ -106,6 +104,8 @@ public class HopDatabase {
         String sourceCode = selenium.driver.getPageSource();
         String hopDataId = getHopDataId(sourceCode);
 
+        List<Hop> hopPairings = getHopPairings(hop, sourceCode);
+
         Map<String, String> hopDataFields = fetchHopData(hopDataId, selenium);
 
         HopData hopData = new HopData(
@@ -114,7 +114,8 @@ public class HopDatabase {
                 hopDataFields.get("Alpha Acids"),
                 hopDataFields.get("Beta Acids"),
                 hopDataFields.get("Profile"),
-                hopChartImage
+                hopChartImage,
+                hopPairings
         );
 
         return hopData;
@@ -162,6 +163,31 @@ public class HopDatabase {
 
         return hopDataFields;
     } 
+
+    List<Hop> getHopPairings(Hop hop, String sourceCode) {
+        logger.info("Getting hop pairings");
+        Pattern pattern = Pattern.compile("(We found that)(.*?)(hops)");
+        Matcher matcher = pattern.matcher(sourceCode);
+        if (matcher.find()) {
+            logger.info("Found pairings for hop");
+            String pairings = matcher.group(2);
+            Pattern namePattern = Pattern.compile(">(\\w+)<");
+            Matcher nameMatcher = namePattern.matcher(pairings);
+
+            List<Hop> foundPairings = new ArrayList<>();
+            while (nameMatcher.find()) {
+                String pairingName = nameMatcher.group(1).toLowerCase();
+                logger.info("Pairing: " + pairingName);
+                if (hops.containsKey(pairingName)) {
+                    foundPairings.add(hops.get(pairingName));
+                }
+            }
+            return foundPairings;
+        }
+
+        return Collections.emptyList();
+    }
+
 
     public Hop getHopWithHopData(Hop hop) {
         if (hop.hopData() != null) {

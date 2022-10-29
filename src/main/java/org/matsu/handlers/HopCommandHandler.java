@@ -1,6 +1,5 @@
 package org.matsu.handlers;
 
-import java.io.File;
 import java.util.List;
 
 import org.matsu.db.HopDatabase;
@@ -10,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -18,7 +16,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class HopCommandHandler {
     static HopDatabase hopDatabase = new HopDatabase();
@@ -47,6 +44,10 @@ public class HopCommandHandler {
         hop = hopDatabase.getHopWithHopData(hop);
         String hopUrl = hopDatabase.getHopUrl(hop);
 
+        // Due to how discord handles forming reply messages with embeds,
+        // we need to do this janky checking in the middle to be able to 
+        // apply our image at the right spot
+
         EmbedBuilder embedBuilder = new EmbedBuilder()
             .setColor(0x7CFC00)
             .setTitle(hop.name(), hopUrl);
@@ -63,7 +64,9 @@ public class HopCommandHandler {
             .addField(new Field("Beta Acids", hop.hopData().betaAcids(), true))
             .addField(new Field("", "", true)) // Spacer
             //.addField(new Field("Similiar hops:", "Simcoe, Citra, etc.", false))
-            .addField(new Field("Profile", hop.hopData().profile(), false));
+            .addField(new Field("Profile", hop.hopData().profile(), false))
+            .addField(new Field("Pairings", hop.hopData().pairingsFormatted(), false))
+            ;
 
 
         MessageCreateBuilder messageBuilder = new MessageCreateBuilder()
