@@ -49,11 +49,19 @@ public class HopCommandHandler {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
             .setColor(0x7CFC00)
-            .setTitle(hop.name(), hopUrl)
+            .setTitle(hop.name(), hopUrl);
+
+        if (hop.hopData().hopChartImage() != null) {
+           embedBuilder = embedBuilder.setImage("attachment://" + hop.imageName());
+        }
+
+        embedBuilder = embedBuilder
             .addField(new Field("Purpose", hop.hopData().purpose(), true))
             .addField(new Field("Country", hop.hopData().country(), true))
+            .addField(new Field("", "", true)) // Spacer
             .addField(new Field("Alpha Acids", hop.hopData().alphaAcids(), true))
             .addField(new Field("Beta Acids", hop.hopData().betaAcids(), true))
+            .addField(new Field("", "", true)) // Spacer
             //.addField(new Field("Similiar hops:", "Simcoe, Citra, etc.", false))
             .addField(new Field("Profile", hop.hopData().profile(), false));
 
@@ -61,11 +69,10 @@ public class HopCommandHandler {
         MessageCreateBuilder messageBuilder = new MessageCreateBuilder()
             .setEmbeds(embedBuilder.build());
 
-
         if (hop.hopData().hopChartImage() != null) {
-            embedBuilder = embedBuilder.setImage("attachment://" + hop.imageName());
-            messageBuilder = messageBuilder.setFiles(FileUpload.fromData(hop.hopData().hopChartImage(), hop.imageName()));
+           messageBuilder = messageBuilder.setFiles(FileUpload.fromData(hop.hopData().hopChartImage(), hop.imageName()));
         }
+
 
         event.getChannel().sendMessage(messageBuilder.build()).queue();
     }
@@ -78,6 +85,7 @@ public class HopCommandHandler {
 
         logger.info("Handling request");
         List<Choice> hopChoicesMatching = hopDatabase.getHopChoicesMatching(event.getFocusedOption().getValue());
+
         event.replyChoices(hopChoicesMatching).queue();
     }
 }
