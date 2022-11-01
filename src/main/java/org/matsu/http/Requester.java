@@ -21,6 +21,7 @@ public class Requester {
     }
 
     public String get(String url) {
+        logger.info("Getting page " + url);
         HttpRequest request = HttpRequest.newBuilder(URI.create(url))
             .build();
 

@@ -1,12 +1,9 @@
 package org.matsu;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.matsu.listeners.QueryListener;
 import org.matsu.scrape.SeleniumConfig;
-import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +27,7 @@ public class Bot {
         String token = args[0];
 
         logger.info("Beginning initialization");
+        logger.info("Bot token: " + token);
 
         testSelenium();
 

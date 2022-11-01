@@ -37,7 +37,9 @@ public class SeleniumConfig {
     SeleniumConfig() {
         // TODO: Use allowlist maybe
         System.setProperty("webdriver.chrome.whitelistedIps", "");
-        WebDriverManager.chromedriver().browserVersion("106").setup();
+        WebDriverManager.chromedriver()
+            .browserVersion("106")
+            .setup();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -54,8 +56,8 @@ public class SeleniumConfig {
     public void hideElement(String elementId) {
         try {
             WebElement elementToHide = waitForElement(By.cssSelector(elementId), 2000);
-            logger.info("Found element " + elementId + " and hid it");
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.visibility = 'hidden'", elementToHide);
+            logger.info("Found element " + elementId + " and hid it");
         } catch (Exception ex) {
             logger.info("Element " + elementId + " was not found on the page and was not hidden.");
         }
@@ -99,7 +101,7 @@ public class SeleniumConfig {
             return ((TakesScreenshot) waitForElement(by, 2000))
                 .getScreenshotAs(OutputType.FILE);
         } catch (NullPointerException ex) {
-            logger.info("Couldn't screenshop element as element was not found.");
+            logger.info("Couldn't screenshot element as element was not found.");
             return null;
         }
     }
