@@ -67,6 +67,7 @@ public class SeleniumConfig {
         try {
             WebElement elementToHide = waitForElement(By.cssSelector(elementId), 2000);
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.padding = '10px'", elementToHide);
+            logger.info("Successfully padded element ", elementId);
         } catch (Exception ex) {
             logger.info("Element " + elementId + " was not found on the page and was not padded.");
         }
@@ -98,8 +99,10 @@ public class SeleniumConfig {
 
     public File screenshotElement(By by) {
         try {
-            return ((TakesScreenshot) waitForElement(by, 2000))
+            File screenshot = ((TakesScreenshot) waitForElement(by, 2000))
                 .getScreenshotAs(OutputType.FILE);
+            logger.info("Successfully screenshot element ", by.toString());
+            return screenshot;
         } catch (NullPointerException ex) {
             logger.info("Couldn't screenshot element as element was not found.");
             return null;
