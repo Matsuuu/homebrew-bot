@@ -1,0 +1,1 @@
+https://byo.com/wp-admin/admin-ajax.php?id=&post_id=article&slug=article&posts_per_page=10&page=0&offset=0&post_type=article&repeater=default&seo_start_page=1&taxonomy_relation=AND&meta_key=date_key&order=ASC&orderby=relevance&action=alm_get_posts&query_type=standard&search=hop
