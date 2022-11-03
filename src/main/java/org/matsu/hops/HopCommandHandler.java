@@ -65,6 +65,7 @@ public class HopCommandHandler {
             //.addField(new Field("Similiar hops:", "Simcoe, Citra, etc.", false))
             .addField(new Field("Profile", hop.hopData().profile(), false))
             .addField(new Field("Pairings", hop.hopData().pairingsFormatted(), false))
+            .addField(new Field("Stores", hop.hopData().shopListingsFormatted(), false))
             ;
 
 

@@ -68,6 +68,21 @@ public class HopDatabase {
             .toList();
     }
 
+    public Hop getHopWithHopData(Hop hop) {
+        if (hop.hopData() != null) {
+            logger.info("Hop data cache hit");
+            return hop;
+        }
+
+        logger.info(hop.toString());
+        logger.info("Hop data not found. Initiating data fetching...");
+        HopData hopData = scrapeHopData(hop);
+
+        Hop initializedHop = new Hop(hop.name(), hop.dataName(), hopData);
+        hops.put(hop.dataName().toLowerCase(), initializedHop);
+        return initializedHop;
+    }
+
     void scrapeHopMaverickHopList() {
         String hopSiteData = http.get(Hop.HOP_SITE_URL);
         //logger.info(hopSiteData);
@@ -105,6 +120,7 @@ public class HopDatabase {
         List<Hop> hopPairings = getHopPairings(hop, sourceCode);
 
         Map<String, String> hopDataFields = fetchHopData(hopDataId, selenium);
+        Map<String, String> shopListings = getShopListings(hop, selenium);
 
         HopData hopData = new HopData(
                 hopDataFields.get("Country"),
@@ -113,7 +129,8 @@ public class HopDatabase {
                 hopDataFields.get("Beta Acids"),
                 hopDataFields.get("Profile"),
                 hopChartImage,
-                hopPairings
+                hopPairings,
+                shopListings
         );
 
         return hopData;
@@ -186,19 +203,43 @@ public class HopDatabase {
         return foundPairings;
     }
 
+    Map<String, String> getShopListings(Hop hop, SeleniumConfig selenium) {
+        String hopDataName = hop.dataName();
+        
+        // TODO: make these shop handlers into their own abstracted modules
+        // The current approach is just a placeholder
 
-    public Hop getHopWithHopData(Hop hop) {
-        if (hop.hopData() != null) {
-            logger.info("Hop data cache hit");
-            return hop;
-        }
+        String mallasPuotiUrl = "https://mallaspuoti.fi/?orderby=popularity&dgwt_wcas=1&post_type=product&s=";
+        String melkkoBrewUrl = "https://www.melkkobrew.fi/tuotehaku?s=";
+        String lappoUrl = "https://lappo.fi/?orderby=popularity&dgwt_wcas=1&post_type=product&s=";
 
-        logger.info(hop.toString());
-        logger.info("Hop data not found. Initiating data fetching...");
-        HopData hopData = scrapeHopData(hop);
+        Map<String, String> shopLinks = new HashMap<>();
 
-        Hop initializedHop = new Hop(hop.name(), hop.dataName(), hopData);
-        hops.put(hop.dataName().toLowerCase(), initializedHop);
-        return initializedHop;
+        // Handle Mallaspuoti
+        selenium.getPage(mallasPuotiUrl + hopDataName);
+        WebElement productElement = selenium.waitForElement(By.className("woocommerce-loop-product__link"), 2000);
+        String link = productElement.getAttribute("href");
+        logger.info("Mallaspuoti: " + link);
+        shopLinks.put("Mallaspuoti", link); // TODO: Enumereate
+        //
+
+        // Handle Melkkobrew
+        selenium.getPage(melkkoBrewUrl + hopDataName);
+        WebElement productElement2 = selenium.waitForElement(By.className("product-link"), 2000);
+        String link2 = productElement2.getAttribute("href");
+        logger.info("Melkkobrew: " + link2);
+        shopLinks.put("Melkkobrew", link2); // TODO: Enumereate
+        //
+
+        // Handle Lappo
+        selenium.getPage(lappoUrl + hopDataName);
+        WebElement productElement3 = selenium.waitForElement(By.className("woocommerce-loop-product__link"), 2000);
+        String link3 = productElement3.getAttribute("href");
+        logger.info("Lappo: " + link3);
+        shopLinks.put("Lappo", link3); // TODO: Enumereate
+        //
+
+        return shopLinks;
     }
+
 }
