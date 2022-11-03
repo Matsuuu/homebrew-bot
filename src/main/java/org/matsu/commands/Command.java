@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.matsu.handlers.HopCommandHandler;
+import org.matsu.hops.HopCommandHandler;
 
 import net.dv8tion.jda.api.events.Event;
 

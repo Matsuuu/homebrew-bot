@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.matsu.commands.Command;
 import org.matsu.commands.CommandType;
-import org.matsu.db.HopDatabase;
+import org.matsu.hops.HopDatabase;
 import org.matsu.http.Requester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
